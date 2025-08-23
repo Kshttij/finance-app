@@ -1,3 +1,4 @@
+// Signup.jsx
 import { useState } from "react";
 
 export default function Signup({ setUserId }) {
@@ -8,19 +9,19 @@ export default function Signup({ setUserId }) {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // reset previous errors
+    setErrorMessage("");
 
-   try {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
-  });
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
       const data = await res.json();
 
       if (res.ok) {
-        setUserId(data.id); // set user ID in parent
-        alert(data.message || "Signup successful"); // optional success message
+        setUserId(data.id);
+        alert(data.message || "Signup successful");
       } else {
         setErrorMessage(data.message || "Signup failed");
       }
@@ -31,14 +32,14 @@ export default function Signup({ setUserId }) {
   };
 
   return (
-    <form onSubmit={handleSignup}>
-      <h2>Signup</h2>
-
+    <form onSubmit={handleSignup} className="space-y-4">
+      <h2 className="text-xl font-semibold text-gray-800">Create Account</h2>
       <input
         type="text"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
         required
       />
       <input
@@ -46,6 +47,7 @@ export default function Signup({ setUserId }) {
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
         required
       />
       <input
@@ -53,11 +55,16 @@ export default function Signup({ setUserId }) {
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
         required
       />
-      <button type="submit">Signup</button>
-
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      <button
+        type="submit"
+        className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+      >
+        Signup
+      </button>
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
     </form>
   );
 }

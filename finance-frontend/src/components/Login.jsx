@@ -1,3 +1,4 @@
+// Login.jsx
 import { useState } from "react";
 
 export default function Login({ setUserId }) {
@@ -7,23 +8,21 @@ export default function Login({ setUserId }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // reset previous errors
+    setErrorMessage("");
 
     try {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-
-      const data = await res.json(); // always parse JSON
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
       if (res.ok) {
-        setUserId(data.id); // set user ID in parent
-        alert(data.message); // optional success message
+        setUserId(data.id);
+        alert(data.message);
       } else {
-        setErrorMessage(data.message || "Login failed"); // show backend error
+        setErrorMessage(data.message || "Login failed");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -32,27 +31,31 @@ export default function Login({ setUserId }) {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Login</h2>
-
+    <form onSubmit={handleLogin} className="space-y-4">
+      <h2 className="text-xl font-semibold text-gray-800">Login</h2>
       <input
         type="email"
+        placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
+        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
         required
       />
       <input
         type="password"
+        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
+        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
         required
       />
-
-      <button type="submit">Login</button>
-
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      <button
+        type="submit"
+        className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+      >
+        Login
+      </button>
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
     </form>
   );
 }
