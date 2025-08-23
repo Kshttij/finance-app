@@ -3,7 +3,7 @@ const API_URL = "https://finance-server-cs6w.onrender.com";
 
 // -------------------- Auth APIs --------------------
 export async function signup(userData) {
-  const response = await fetch(`${API_URL}/signup`, {
+  const response = await fetch(`${API_URL}/api/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
@@ -12,7 +12,7 @@ export async function signup(userData) {
 }
 
 export async function login(userData) {
-  const response = await fetch(`${API_URL}/login`, {
+  const response = await fetch(`${API_URL}/api/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
