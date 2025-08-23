@@ -1,35 +1,44 @@
 // App.jsx
-import { useState } from "react";
-import Signup from "./components/Signup";
+import React, { useState } from "react";
 import Login from "./components/Login";
-import Dashboard from "./components/dashboard/Dashboard";
+import Signup from "./components/Signup";
+import AuthLayout from "./components/AuthLayout";
 
-export default function App() {
-  const [userId, setUserId] = useState(null);
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+
+  const handleAuthSuccess = (data) => {
+    console.log("Auth success:", data);
+    setIsLoggedIn(true);
+  };
+
+  if (isLoggedIn) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+        <div className="bg-white shadow-lg rounded-2xl p-10 text-center w-[400px]">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">🎉 Welcome!</h2>
+          <p className="text-gray-600">You’re successfully logged in.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      {!userId ? (
-        <div className="max-w-md mx-auto pt-12">
-          <h1 className="text-3xl font-bold text-center text-indigo-600 mb-8">
-            Finance App 💰
-          </h1>
-          <div className="bg-white shadow-lg rounded-2xl p-6 space-y-8">
-            <Signup setUserId={setUserId} />
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Or</span>
-              </div>
-            </div>
-            <Login setUserId={setUserId} />
-          </div>
-        </div>
+    <AuthLayout>
+      {showSignup ? (
+        <Signup
+          onSignupSuccess={handleAuthSuccess}
+          onShowLogin={() => setShowSignup(false)}
+        />
       ) : (
-        <Dashboard userId={userId} />
+        <Login
+          onLoginSuccess={handleAuthSuccess}
+          onShowSignup={() => setShowSignup(true)}
+        />
       )}
-    </div>
+    </AuthLayout>
   );
 }
+
+export default App;

@@ -1,61 +1,106 @@
-// Login.jsx
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/api";
 
-export default function Login({ setUserId }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+function Login({ onLoginSuccess, onShowSignup }) {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
-
+    setError("");
+    setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setUserId(data.id);
-        alert(data.message);
+      const data = await login({ email: form.email, password: form.password });
+      if (data && (data.id || data.message || data.token)) {
+        onLoginSuccess(data);
       } else {
-        setErrorMessage(data.message || "Login failed");
+        setError(data?.message || "Login failed");
       }
     } catch (err) {
-      console.error("Login error:", err);
-      setErrorMessage("An unexpected error occurred");
+      setError("Unable to login. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-800">Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-400"
-        required
-      />
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-      >
-        Login
-      </button>
-      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-    </form>
+    <div className="bg-white/95 backdrop-blur p-8 rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md">
+      <div className="text-center mb-6">
+        <div className="mx-auto h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+          <span className="text-xl">🔐</span>
+        </div>
+        <h2 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
+          Welcome back
+        </h2>
+        <p className="text-sm text-gray-500">Log in to continue</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email
+          </label>
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow shadow-sm hover:shadow-md"
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow shadow-sm hover:shadow-md"
+            placeholder="••••••••"
+            autoComplete="current-password"
+          />
+        </div>
+
+        {error && (
+          <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-2 transition-all animate-fade-in">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-lg bg-blue-600 text-white py-2.5 font-medium hover:bg-blue-700 active:scale-95 transition-all duration-150 disabled:opacity-60 shadow-md hover:shadow-lg"
+        >
+          {loading ? "Logging in..." : "Log In"}
+        </button>
+      </form>
+
+      <div className="text-center mt-4 text-sm">
+        Don’t have an account?{" "}
+        <button
+          type="button"
+          onClick={() => onShowSignup(true)}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          Create one
+        </button>
+      </div>
+    </div>
   );
 }
+
+export default Login;
