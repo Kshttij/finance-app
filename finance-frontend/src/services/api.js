@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:8080";
+
+const API_URL = "https://finance-server-cs6w.onrender.com"; //updated this, okay right?
 
 // -------------------- Auth APIs --------------------
 export async function signup(userData) {
