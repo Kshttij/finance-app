@@ -1,5 +1,5 @@
 
-const API_URL = "https://finance-app-1-nqo6.onrender.com"; 
+const API_URL = "https://finance-server-cs6w.onrender.com"; 
 
 // -------------------- Auth APIs --------------------
 export async function signup(userData) {
