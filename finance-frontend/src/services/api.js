@@ -1,5 +1,5 @@
 
-const API_URL = "https://finance-server-cs6w.onrender.com"; //updated this, okay right?
+const API_URL = import.meta.env.VITE_API_URL; 
 
 // -------------------- Auth APIs --------------------
 export async function signup(userData) {
