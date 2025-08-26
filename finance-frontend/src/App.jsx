@@ -1,9 +1,9 @@
-// App.jsx
+// src/App.jsx
 import React, { useState } from "react";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import AuthLayout from "./components/AuthLayout";
-import Dashboard from "./components/dashboard/Dashboard"; // ✅ correct path
+import Login from "./pages/Auth/Login";
+import Signup from "./pages/Auth/Signup";
+import AuthLayout from "./pages/Auth/AuthLayout";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

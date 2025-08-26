@@ -1,4 +1,3 @@
-
 const API_URL = "https://finance-server-cs6w.onrender.com"; 
 
 // -------------------- Auth APIs --------------------
@@ -21,6 +20,11 @@ export async function login(userData) {
 }
 
 // -------------------- Categories --------------------
+export async function getAllCategories() {
+  const res = await fetch(`${API_URL}/api/categories`);
+  return res.ok ? res.json() : [];
+}
+
 export async function getCategoriesByType(type) {
   const res = await fetch(`${API_URL}/api/categories/by-type?type=${type}`);
   return res.ok ? res.json() : [];
@@ -33,7 +37,7 @@ export async function createTransaction(userId, transactionData) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(transactionData),
   });
-  return res.ok;
+  return res.ok ? res.json() : null; // FIXED
 }
 
 export async function getTransactions(userId) {
@@ -47,7 +51,7 @@ export async function updateTransaction(userId, transactionId, transactionData) 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(transactionData),
   });
-  return res.ok;
+  return res.ok ? res.json() : null;
 }
 
 export async function deleteTransaction(userId, transactionId) {
@@ -94,3 +98,36 @@ export async function getTotalByType(userId, type) {
   return res.ok ? res.json() : 0;
 }
 
+export async function getMonthlySummary(userId, startOfMonth, endOfMonth) {
+  const res = await fetch(
+    `${API_URL}/users/${userId}/analytics/monthly-summary?startOfMonth=${startOfMonth}&endOfMonth=${endOfMonth}`
+  );
+  return res.ok ? res.json() : {};
+}
+
+// -------------------- Users --------------------
+export async function getAllUsers() {
+  const res = await fetch(`${API_URL}/api/users`);
+  return res.ok ? res.json() : [];
+}
+
+export async function getUserByEmail(email) {
+  const res = await fetch(`${API_URL}/api/users/email/${email}`);
+  return res.ok ? res.json() : null;
+}
+
+export async function updateUser(id, updatedUser) {
+  const res = await fetch(`${API_URL}/api/users/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedUser),
+  });
+  return res.ok ? res.json() : null;
+}
+
+export async function deleteUser(id) {
+  const res = await fetch(`${API_URL}/api/users/${id}`, {
+    method: "DELETE",
+  });
+  return res.ok;
+}
