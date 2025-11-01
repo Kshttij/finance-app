@@ -1,6 +1,6 @@
 package com.financeapp.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore; // ✅ Import this
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.Instant;
 
@@ -15,14 +15,22 @@ public class Expense {
     private Double amount;
     private Instant createdAt;
 
+    /**
+     * This is the relationship to the Budget.
+     * Just like on the Budget, we use @JsonIgnore and FetchType.LAZY
+     * to prevent leaks and infinite loops.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "budget_id")
-    @JsonIgnore // ✅ Tell Jackson to ignore this field
+    @JsonIgnore
     private Budget budget;
 
+    /**
+     * This is the relationship to the User.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnore // ✅ Tell Jackson to ignore this field
+    @JsonIgnore
     private User user;
 
     public Expense() {
@@ -36,64 +44,55 @@ public class Expense {
         this.createdAt = Instant.now();
     }
 
-    // ✅ ADD THESE METHODS
-    // Jackson will see these and serialize them as "budgetId" and "userId"
-    
+    /**
+     * Custom getter to expose the 'budgetId' in the JSON.
+     * My frontend needs this to know which budget the expense belongs to.
+     */
     public String getBudgetId() {
         return (budget != null) ? budget.getId() : null;
     }
 
+    /**
+     * Custom getter to expose the 'userId' in the JSON.
+     */
     public Long getUserId() {
         return (user != null) ? user.getId() : null;
     }
 
-
-    // --- getters/setters (no changes needed below) ---
-
+    // --- Standard Getters and Setters ---
     public String getId() {
         return id;
     }
-
     public void setId(String id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public Double getAmount() {
         return amount;
     }
-
     public void setAmount(Double amount) {
         this.amount = amount;
     }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
-
     public Budget getBudget() {
         return budget;
     }
-
     public void setBudget(Budget budget) {
         this.budget = budget;
     }
-
     public User getUser() {
         return user;
     }
-
     public void setUser(User user) {
         this.user = user;
     }

@@ -7,8 +7,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList; // For roles, if you add them
+import java.util.ArrayList; // For authorities/roles
+import java.util.Optional;
 
+/**
+ * Interview Point: Explain this class.
+ *
+ * "This class is the bridge between my app's 'User' model and Spring Security.
+ * Spring Security doesn't know about my 'User' class. It only knows
+ * about an interface called 'UserDetails'.
+ *
+ * This service implements 'UserDetailsService', which has one job:
+ * take a 'username' string and return a 'UserDetails' object.
+ * This is how Spring Security loads user data during login
+ * and token validation."
+ */
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
@@ -20,16 +33,24 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Find our custom User entity
-        User myUser = userService.getUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        
+        // 1. Find our custom User entity from our database
+        Optional<User> myUserOptional = userService.getUserByUsername(username);
 
-        // Convert it to Spring Security's UserDetails object
-        // We are not using roles here, but you could add them as a new ArrayList<>()
-        return new org.springframework.security.core.userdetails.User(
-                myUser.getUsername(),
-                myUser.getPassword(),
-                new ArrayList<>() // Empty list for authorities (roles)
-        );
+        // 2. Use a verbose if/else check for clarity
+        if (myUserOptional.isPresent()) {
+            User myUser = myUserOptional.get();
+
+            // 3. Convert our User object into a Spring Security UserDetails object
+            // We are not using roles, so we pass an empty list for authorities.
+            return new org.springframework.security.core.userdetails.User(
+                    myUser.getUsername(),
+                    myUser.getPassword(),
+                    new ArrayList<>() // Empty list for authorities (e.g., "ROLE_ADMIN")
+            );
+        } else {
+            // 4. If the user isn't found, we must throw this specific exception
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
     }
 }
