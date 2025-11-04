@@ -15,21 +15,7 @@ public class Budget {
     private Double amount;
     private Instant createdAt;
 
-    /**
-     * Interview Point: Explain this '@JsonIgnore'
-     *
-     * "This is a Many-to-One relationship, meaning many budgets can
-     * belong to one user.
-     *
-     * I've marked the 'User' object with '@JsonIgnore' and 'FetchType.LAZY'.
-     * This is critical for two reasons:
-     * 1. LAZY: It tells Hibernate not to load the User object from the
-     * database unless I explicitly ask for it (e.g., budget.getUser()).
-     * 2. JsonIgnore: It tells the JSON serializer (Jackson) to *never*
-     * include the full User object when sending a Budget to the frontend.
-     * This prevents accidentally leaking sensitive user data
-     * and also stops infinite loops (if User had a List<Budget>)."
-     */
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
@@ -45,17 +31,6 @@ public class Budget {
         this.createdAt = Instant.now();
     }
 
-    /**
-     * Interview Point: Explain this custom getter.
-     *
-     * "Since I ignored the 'User' object, my frontend still needs
-     * to know which user this budget belongs to.
-     *
-     * I created this custom getter 'getUserId()'. Jackson sees this
-     * and adds a new field called 'userId' to the final JSON,
-     * which only contains the ID. This is a secure and clean
-     * way to expose the foreign key."
-     */
     public Long getUserId() {
         return (user != null) ? user.getId() : null;
     }

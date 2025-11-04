@@ -14,14 +14,6 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Interview Point: Explain this class.
- *
- * "This controller handles all '/api/expenses' endpoints. It's very
- * similar to the BudgetController. It's fully secured and uses
- * DTOs for creating new expenses. It also has a helper
- * for getting the logged-in user."
- */
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
@@ -41,11 +33,7 @@ public class ExpenseController {
         return userService.getUserByUsername(principal.getName());
     }
 
-    /**
-     * Lists expenses. This endpoint is smart:
-     * 1. If no 'budgetId' is given, it returns ALL expenses for the user.
-     * 2. If a 'budgetId' is given, it returns only expenses for that budget.
-     */
+
     @GetMapping
     public ResponseEntity<?> listExpenses(
             Principal principal,
@@ -105,24 +93,24 @@ public class ExpenseController {
         }
         User loggedInUser = userOptional.get();
 
-        // 1. Find the expense
+        // Find the expense
         Optional<Expense> expenseOptional = expenseService.findById(id);
 
-        // 2. Verbose check if it exists
+        //  check if it exists
         if (expenseOptional.isPresent()) {
             Expense expense = expenseOptional.get();
             
-            // 3. CRITICAL SECURITY CHECK: Verify ownership
+            //verify ownership
             if (expense.getUser().getId().equals(loggedInUser.getId())) {
-                // 4. If checks pass, delete it
+                // If checks pass, delete it
                 expenseService.delete(id);
                 return ResponseEntity.noContent().build();
             } else {
-                // 5. If not the owner, return 403 Forbidden
+                // If not the owner, return 403 Forbidden
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not own this expense");
             }
         } else {
-            // 6. If it doesn't exist, return 404 Not Found
+            //  If it doesn't exist, return 404 Not Found
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Expense not found");
         }
     }

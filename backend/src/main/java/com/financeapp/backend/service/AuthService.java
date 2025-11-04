@@ -5,91 +5,67 @@ import com.financeapp.backend.dto.AuthRequest;
 import com.financeapp.backend.dto.AuthResponse;
 import com.financeapp.backend.dto.UserRequest;
 import com.financeapp.backend.model.User;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-/**
- * Interview Point: Explain this class.
- *
- * "I created a new AuthService to clean up my AuthController.
- * This service now holds all the 'business logic' for
- * registering and logging in.
- *
- * The controller's job is just to handle the HTTP request and DTOs.
- * This service's job is to orchestrate all the *other* services
- * (like UserService, AuthenticationManager, JwtUtil)
- * to perform the full authentication flow."
- */
+import java.util.ArrayList;
+
 @Service
 public class AuthService {
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
+   
+    // Updated Constructor:
     public AuthService(UserService userService,
-                       AuthenticationManager authenticationManager,
-                       UserDetailsService userDetailsService,
+                       PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
-    /**
-     * Handles the user registration logic.
-     * @param userRequest The DTO containing registration info
-     */
+    
+      //Handles the user registration logic.
+     
     public void register(UserRequest userRequest) {
-        // 1. Check if the username is already taken
         if (userService.existsByUsername(userRequest.getUsername())) {
             throw new RuntimeException("Username already registered");
         }
-        
-        // 2. Create a new User entity from the DTO
         User newUser = new User();
         newUser.setUsername(userRequest.getUsername());
-        newUser.setPassword(userRequest.getPassword()); // Pass the plain text
-
-        // 3. Save the user. The UserService will handle hashing the password.
+        newUser.setPassword(userRequest.getPassword()); 
         userService.saveUser(newUser);
     }
 
-    /**
-     * Handles the user login logic.
-     * @param authRequest The DTO containing login credentials
-     * @return An AuthResponse with the token and username
-     * @throws BadCredentialsException if authentication fails
-     */
     public AuthResponse login(AuthRequest authRequest) throws BadCredentialsException {
-        // 1. Try to authenticate the user
-        // This will use our MyUserDetailsService and BCrypt encoder.
-        // If it fails, it throws a BadCredentialsException.
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUsername(),
-                        authRequest.getPassword()
-                )
+
+        // find the user in the database
+        User user = userService.getUserByUsername(authRequest.getUsername())
+                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
+
+        // check if the password matches
+        boolean isPasswordMatch = passwordEncoder.matches(authRequest.getPassword(), // Plain-text password from request
+                user.getPassword()         // Hashed password from database
         );
 
-        // 2. If authentication is successful, load UserDetails
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(
-                authRequest.getUsername()
-        );
+        if (!isPasswordMatch) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
 
-        // 3. Generate a JWT token
-        final String jwt = jwtUtil.generateToken(userDetails);
+        // If we are here, the password is correct!
 
-        // 4. Return the response DTO
+        // Generate a JWT token
+        final String jwt = jwtUtil.generateToken(user.getUsername());
+
+        // 5. Return the response DTO
         return new AuthResponse(
                 jwt,
-                userDetails.getUsername(),
+                user.getUsername(),
                 "Login successful"
         );
     }
