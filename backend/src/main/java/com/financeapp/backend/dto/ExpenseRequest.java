@@ -17,6 +17,9 @@ public class ExpenseRequest {
     @NotBlank(message = "Budget ID cannot be blank")
     private String budgetId;
 
+    @NotBlank(message = "Category cannot be blank")
+    private String category;
+
     // Getters and Setters
     public String getName() {
         return name;
@@ -35,5 +38,13 @@ public class ExpenseRequest {
     }
     public void setBudgetId(String budgetId) {
         this.budgetId = budgetId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

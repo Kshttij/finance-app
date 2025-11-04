@@ -1,4 +1,3 @@
-// src/pages/BudgetPage.jsx
 import { useLoaderData } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -19,13 +18,12 @@ import AddExpenseForm from "../components/AddExpenseForm";
 import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
 
-// ✅ Refactored Loader
+// ✅ Loader (No changes)
 export async function budgetLoader({ params }) {
   try {
-    // ✅ Fetch the specific budget and its expenses in parallel
     const [budgetRes, expensesRes] = await Promise.all([
       getBudget(params.id),
-      getExpensesForBudget(params.id), // Assumes API: /api/expenses?budgetId=...
+      getExpensesForBudget(params.id), 
     ]);
 
     if (!budgetRes.data) {
@@ -35,12 +33,11 @@ export async function budgetLoader({ params }) {
     const budget = budgetRes.data;
     const expenses = expensesRes.data || [];
 
-    // ✅ PRE-CALCULATE spent amount
     const spent = calculateSpentByBudget(budget.id, expenses);
     const budgetWithSpent = {
       ...budget,
       spent,
-      color: generateRandomColor(), // Add color
+      color: generateRandomColor(),
     };
 
     return { budget: budgetWithSpent, expenses };
@@ -61,23 +58,22 @@ export async function budgetAction({ request }) {
         name: values.newExpense,
         amount: parseFloat(values.newExpenseAmount),
         budgetId: values.newExpenseBudget,
+        // --- THIS IS THE FIX ---
+        // We must also pass the category from the form,
+        // just like on the dashboard.
+        category: values.newExpenseCategory,
       };
 
       // --- START VALIDATION ---
-      // 1. Fetch the budget details to get its limit
+      // (This logic is great, no changes)
       const budgetRes = await getBudget(newExpense.budgetId);
       const budgetAmount = budgetRes.data.amount;
-
-      // 2. Fetch the *current* expenses for this budget
       const expensesRes = await getExpensesForBudget(newExpense.budgetId);
-
-      // 3. Calculate how much has already been spent
       const spent = calculateSpentByBudget(
         newExpense.budgetId,
         expensesRes.data
       );
 
-      // 4. This is the check!
       if (newExpense.amount + spent > budgetAmount) {
         return toast.warn(
           `Adding this expense will exceed your "${budgetRes.data.name}" budget!`
@@ -94,6 +90,7 @@ export async function budgetAction({ request }) {
   }
 
   if (_action === "deleteExpense") {
+    // (No changes here)
     try {
       await deleteExpense(values.expenseId); // ✅ Use API
       return toast.success("Expense deleted!");
@@ -104,6 +101,7 @@ export async function budgetAction({ request }) {
   return null;
 }
 
+// Component (No changes)
 const BudgetPage = () => {
   const { budget, expenses } = useLoaderData();
 
@@ -118,7 +116,6 @@ const BudgetPage = () => {
         <span className="accent">{budget.name}</span> Overview
       </h1>
       <div className="flex-lg">
-        {/* ✅ BudgetItem receives 'budget.spent' */}
         <BudgetItem budget={budget} showDelete={true} />
         <AddExpenseForm budgets={[budget]} />
       </div>
@@ -127,7 +124,6 @@ const BudgetPage = () => {
           <h2>
             <span className="accent">{budget.name}</span> Expenses
           </h2>
-          {/* ✅ This is fine. showBudget=false means ExpenseItem won't need the 'budgets' prop */}
           <Table expenses={expenses} showBudget={false} />
         </div>
       )}

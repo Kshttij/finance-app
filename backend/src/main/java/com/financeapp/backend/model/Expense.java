@@ -15,6 +15,9 @@ public class Expense {
     private Double amount;
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING) 
+    private Category category;
+
     /**
      * This is the relationship to the Budget.
      * Just like on the Budget, we use @JsonIgnore and FetchType.LAZY
@@ -36,12 +39,13 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(String name, Double amount, Budget budget, User user) {
+    public Expense(String name, Double amount, Category category,Budget budget, User user) {
         this.name = name;
         this.amount = amount;
         this.budget = budget;
         this.user = user;
         this.createdAt = Instant.now();
+        this.category = category;
     }
 
     /**
@@ -95,5 +99,13 @@ public class Expense {
     }
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

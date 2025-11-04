@@ -7,6 +7,17 @@ import { useFetcher } from "react-router-dom"
 // library imports
 import { PlusCircleIcon } from "@heroicons/react/24/solid"
 
+// --- NEW --- Define the categories to match your backend enum
+const categories = [
+  "FOOD",
+  "TRANSPORT",
+  "HOUSING",
+  "UTILITIES",
+  "ENTERTAINMENT",
+  "HEALTH",
+  "OTHER"
+];
+
 const AddExpenseForm = ({ budgets }) => {
   const fetcher = useFetcher()
   const isSubmitting = fetcher.state === "submitting";
@@ -61,6 +72,22 @@ const AddExpenseForm = ({ budgets }) => {
             />
           </div>
         </div>
+        
+        {/* --- NEW --- Category Dropdown Added */}
+        <div className="grid-xs">
+          <label htmlFor="newExpenseCategory">Category</label>
+          <select name="newExpenseCategory" id="newExpenseCategory" required>
+            {
+              categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))
+            }
+          </select>
+        </div>
+        {/* --- END NEW --- */}
+
         <div className="grid-xs" hidden={budgets.length === 1}>
           <label htmlFor="newExpenseBudget">Budget Category</label>
           <select name="newExpenseBudget" id="newExpenseBudget" required>

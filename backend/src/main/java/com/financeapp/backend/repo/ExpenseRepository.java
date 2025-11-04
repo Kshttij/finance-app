@@ -1,23 +1,30 @@
 package com.financeapp.backend.repo;
 
+// --- ADD THESE IMPORTS ---
+import com.financeapp.backend.dto.CategorySpend;
 import com.financeapp.backend.model.Expense;
 import com.financeapp.backend.model.User;
-import com.financeapp.backend.model.Budget; // Need this for the findAllByBudget
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+// --- END IMPORTS ---
+
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, String> {
-    // "Find all Expenses for a User, ordered by newest first"
+
+    // Standard "find by" query. Spring Data JPA builds this for you.
     List<Expense> findAllByUserOrderByCreatedAtDesc(User user);
     
-    // "Find all Expenses for a specific Budget object"
-    List<Expense> findAllByBudget(Budget budget);
-
-    // "Find all Expenses for a User AND a specific budget ID"
-    // Spring Data JPA understands this method name:
-    // "findBy" (the prefix)
-    // "User" (the 'user' field in the Expense model)
-    // "And"
-    // "Budget_Id" (the 'id' field *inside* the 'budget' field)
+    // Another standard "find by" query.
     List<Expense> findByUserAndBudget_Id(User user, String budgetId);
+    
+    // --- THIS IS THE "INSIGHTS" QUERY ---
+    // It now knows what @Query, CategorySpend, and @Param are.
+    @Query("SELECT new com.financeapp.backend.dto.CategorySpend(e.category, SUM(e.amount)) " +
+           "FROM Expense e WHERE e.user = :user GROUP BY e.category")
+    List<CategorySpend> findSpendingByCategory(@Param("user") User user);
+
+    // @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.budget.id = :budgetId")
+    // Double sumExpensesByBudgetId(@Param("budgetId") String budgetId);
 }
